@@ -3,15 +3,17 @@ FROM nvidia/cuda:7.0-runtime
 COPY Downloads /Downloads
 
 ARG BOOST="boost_1_56_0"  
-ARG CMAKE="cmake-3.18.5-Linux-x86_64.sh"
+ARG CMAKE="cmake-3.18.5-Linux-x86_64"
 ARG EIGEN="eigen-3.2.10"
-ARG OPTIX="NVIDIA-OptiX-SDK-3.9.2-linux64.sh"
+ARG OPTIX="NVIDIA-OptiX-SDK-3.9.2-linux64"
 ARG OSG="OpenSceneGraph-3.2.1"
 ARG THRUST="thrust-1.8.1"
 
-ENV PATH="/${CMAKE}/bin:${PATH}"
+ENV PATH="/Downloads/${CMAKE}/bin:${PATH}"
 ENV BOOST_ROOT=/opt/${BOOST}
 ENV OptiX_INSTALL_DIR="/opt/${OPTIX}"
+ENV THRUST_INSTALL_DIR="/opt/${THRUST}"
+ENV GLM_ROOT_DIR="/opt/glm"
 
 # install basic packages
 RUN sudo dpkg --add-architecture i386; \
@@ -44,7 +46,8 @@ RUN sudo chmod 777 /opt;\
     chmod +x ${OPTIX}.sh && echo y | ./${OPTIX}.sh --prefix=/opt;\
     echo "/opt/${OPTIX}/lib64"  | sudo tee -a /etc/ld.so.conf.d/additional_libs.conf;\
     sudo ldconfig;\
-    echo "export OptiX_INSTALL_DIR=/opt/${OPTIX}"  | sudo tee -a /etc/profile;
+    echo "export OptiX_INSTALL_DIR=/opt/${OPTIX}"  | sudo tee -a /etc/profile;\
+    cd / && rm ${OPTIX}.sh
 
 # install Thrust 
 RUN mv /Downloads/${THRUST} /opt/;\
