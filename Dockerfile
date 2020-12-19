@@ -1,4 +1,4 @@
-FROM nvidia/cuda:7.0-runtime
+FROM nvidia/cuda:7.0-devel
 
 COPY Downloads /Downloads
 
@@ -47,7 +47,7 @@ RUN sudo chmod 777 /opt;\
     echo "/opt/${OPTIX}/lib64"  | sudo tee -a /etc/ld.so.conf.d/additional_libs.conf;\
     sudo ldconfig;\
     echo "export OptiX_INSTALL_DIR=/opt/${OPTIX}"  | sudo tee -a /etc/profile;\
-    cd / && rm ${OPTIX}.sh
+    rm ${OPTIX}.sh && cd /
 
 # install Thrust 
 RUN mv /Downloads/${THRUST} /opt/;\
