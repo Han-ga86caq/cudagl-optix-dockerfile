@@ -20,24 +20,25 @@ ENV CUDAINSTALL="/Downloads/${CUDA_INSTALL}"
 
 USER root
 
+# install basic packages
+RUN dpkg --add-architecture i386; \
+    apt-get update; \
+    apt-get install -y lib32gcc1 lib32stdc++6 libcurl4-gnutls-dev:i386;\
+    apt-get install -y build-essential subversion libxml2-dev freeglut3-dev libgtkglext1-dev \
+    libtiff4-dev gcc-multilib libstdc++6-4.7-dev:i386 libstdc++6-4.7-dev:i386 subversion libxi6:i386 \
+    libsm6:i386 libice6:i386 libc6:i386 libxext6:i386 libx11-6:i386;\
+    apt-get install -y expect;
+
 # install CUDA
 WORKDIR /Downloads/
 RUN chmod +x ${CUDA_INSTALL};\ 
     chmod +x cuda-auto-install.sh;\
-    apt-get update; apt-get install -y expect;\
     ./cuda-auto-install.sh ${CUDA_INSTALL};\
+    ls /usr/local;\
     echo "/usr/local/${CUDA}" |  tee -a /etc/ld.so.conf.d/additional_libs.conf;\
     ldconfig;\
     echo "export PATH=/usr/local/${CUDA}/bin:${PATH}" | tee -a /etc/profile;\
     rm ${CUDAINSTALL}
-
-# install basic packages
-RUN dpkg --add-architecture i386; \
-    apt-get update &&  apt-get upgrade; \
-    apt-get install -y lib32gcc1 lib32stdc++6 libcurl4-gnutls-dev:i386;\
-    apt-get install -y build-essential subversion libxml2-dev freeglut3-dev libgtkglext1-dev \
-    libtiff4-dev gcc-multilib libstdc++6-4.7-dev:i386 libstdc++6-4.7-dev:i386 subversion libxi6:i386 \
-    libsm6:i386 libice6:i386 libc6:i386 libxext6:i386 libx11-6:i386
 
 # install cmake
 WORKDIR /Downloads
