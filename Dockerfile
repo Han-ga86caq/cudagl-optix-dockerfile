@@ -16,16 +16,20 @@ ENV BOOST_ROOT=/opt/${BOOST}
 ENV OptiX_INSTALL_DIR="/opt/${OPTIX}"
 ENV THRUST_INSTALL_DIR="/opt/${THRUST}"
 ENV GLM_ROOT_DIR="/opt/glm"
+ENV CUDAINSTALL="/Downloads/${CUDA_INSTALL}"
 
 USER root
 
 # install CUDA
 WORKDIR /Downloads/
-RUN chmod +x ${CUDA_INSTALL} cuda-auto-install.sh;\
+RUN chmod +x ${CUDA_INSTALL};\ 
+    chmod +x cuda-auto-install.sh;\
+    apt-get update; apt-get install -y expect;\
     ./cuda-auto-install.sh ${CUDA_INSTALL};\
     echo "/usr/local/${CUDA}" |  tee -a /etc/ld.so.conf.d/additional_libs.conf;\
     ldconfig;\
-    echo "export PATH=/usr/local/${CUDA}/bin:${PATH}" | tee -a /etc/profile
+    echo "export PATH=/usr/local/${CUDA}/bin:${PATH}" | tee -a /etc/profile;\
+    rm ${CUDAINSTALL}
 
 # install basic packages
 RUN dpkg --add-architecture i386; \

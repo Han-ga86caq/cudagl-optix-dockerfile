@@ -1,5 +1,6 @@
 #! /usr/bin/expect -f
-spawn ./$1
+set CUDAINSTALL [lindex $argv 0]
+spawn ./$CUDAINSTALL
 expect "End User License Agreement"
 send \x03
 expect "Do you accept the previously read EULA? (accept/decline/quit):"
