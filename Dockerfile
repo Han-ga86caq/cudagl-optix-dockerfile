@@ -11,13 +11,6 @@ ARG THRUST="thrust-1.8.1"
 ARG CUDA="cuda-7.0"
 ARG CUDA_INSTALL="cuda_7.0.28_linux.run"
 
-ENV PATH="/Downloads/${CMAKE}/bin:${PATH}"
-ENV BOOST_ROOT=/opt/${BOOST}
-ENV OptiX_INSTALL_DIR="/opt/${OPTIX}"
-ENV THRUST_INSTALL_DIR="/opt/${THRUST}"
-ENV GLM_ROOT_DIR="/opt/glm"
-ENV CUDAINSTALL="/Downloads/${CUDA_INSTALL}"
-
 USER root
 
 # install basic packages
@@ -37,25 +30,30 @@ RUN chmod +x ${CUDA_INSTALL};\
     ls /usr/local;\
     echo "/usr/local/${CUDA}" |  tee -a /etc/ld.so.conf.d/additional_libs.conf;\
     ldconfig;\
-    echo "export PATH=/usr/local/${CUDA}/bin:${PATH}" | tee -a /etc/profile;\
-    rm ${CUDAINSTALL}
+    rm /Downloads/${CUDA_INSTALL}
+ENV PATH="/usr/local/${CUDA}/bin:${PATH}"
 
 # install cmake
 WORKDIR /Downloads
 RUN chmod +x ${CMAKE}.sh && echo y | ./${CMAKE}.sh;\
     cd / && rm /Downloads/${CMAKE}.sh;
+ENV PATH="/Downloads/${CMAKE}/bin:${PATH}"
 
 # install boost 
 WORKDIR /Downloads/${BOOST}
 RUN chmod -R 777 /opt; ./bootstrap.sh; \
     ./b2 install --prefix=/opt/${BOOST};\
-    echo "export BOOST_ROOT=/opt/${BOOST}"  |  tee -a /etc/profile;\
     cd / && rm -rf /Downloads/${BOOST}
+ENV BOOST_ROOT="/opt/${BOOST}"
 
 # install OpenSceneGraph
 WORKDIR /Downloads/${OSG}
 RUN ./configure;  make install;\
-    cd / && rm -rf /Downloads/${OSG}
+    cd / && rm -rf /Downloads/${OSG};
+ENV LD_LIBRARY_PATH="/usr/local/lib64:/usr/local/lib:${LD_LIBRARY_PATH}"
+ENV OPENTHREADS_INC_DIR="/usr/local/include"
+ENV OPENTHREADS_LIB_DIR="/usr/local/lib64:/usr/local/lib"
+ENV PATH="${OPENTHREADS_LIB_DIR}:${PATH}"
 
 # install OptiX
 WORKDIR /Downloads/
@@ -63,18 +61,20 @@ RUN chmod 777 /opt;\
     chmod +x ${OPTIX}.sh && echo y | ./${OPTIX}.sh --prefix=/opt;\
     echo "/opt/${OPTIX}/lib64"  |  tee -a /etc/ld.so.conf.d/additional_libs.conf;\
     ldconfig;\
-    echo "export OptiX_INSTALL_DIR=/opt/${OPTIX}"  |  tee -a /etc/profile;\
     rm ${OPTIX}.sh && cd /
+ENV OptiX_INSTALL_DIR="/opt/${OPTIX}"
 
 # install Thrust 
-RUN mv /Downloads/${THRUST} /opt/;\
-    echo "export THRUST_INSTALL_DIR=/opt/${THRUST}"  |  tee -a /etc/profile;
+RUN mv /Downloads/${THRUST} /opt/;
+ENV THRUST_INSTALL_DIR="/opt/${THRUST}"
 
 # install GLM
-RUN mv /Downloads/glm /opt/;\
-    echo "export GLM_ROOT_DIR=/opt/glm"  |  tee -a /etc/profile; 
+RUN mv /Downloads/glm /opt/;
+ENV GLM_ROOT_DIR="/opt/glm"
 
 # install Eigen 
 WORKDIR /Downloads/${EIGEN}
 RUN mkdir build; cd build; cmake .. &&  make install;\
     cd /; rm -rf /Downloads/${EIGEN};
+
+WORKDIR /
