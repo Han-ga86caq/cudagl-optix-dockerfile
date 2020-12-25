@@ -57,7 +57,7 @@ ENV PATH="${OPENTHREADS_LIB_DIR}:${PATH}"
 
 # install OptiX
 WORKDIR /Downloads/
-RUN chmod 777 /opt;\
+RUN chmod -R 777 /opt;\
     chmod +x ${OPTIX}.sh && echo y | ./${OPTIX}.sh --prefix=/opt;\
     echo "/opt/${OPTIX}/lib64"  |  tee -a /etc/ld.so.conf.d/additional_libs.conf;\
     ldconfig;\
