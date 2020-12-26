@@ -22,17 +22,6 @@ RUN dpkg --add-architecture i386; \
     libsm6:i386 libice6:i386 libc6:i386 libxext6:i386 libx11-6:i386;\
     apt-get install -y expect;
 
-# install CUDA
-WORKDIR /Downloads/
-RUN chmod +x ${CUDA_INSTALL};\ 
-    chmod +x cuda-auto-install.sh;\
-    ./cuda-auto-install.sh ${CUDA_INSTALL};\
-    ls /usr/local;\
-    echo "/usr/local/${CUDA}" |  tee -a /etc/ld.so.conf.d/additional_libs.conf;\
-    ldconfig;\
-    rm /Downloads/${CUDA_INSTALL}
-ENV PATH="/usr/local/${CUDA}/bin:${PATH}"
-
 # install cmake
 WORKDIR /Downloads
 RUN chmod +x ${CMAKE}.sh && echo y | ./${CMAKE}.sh;\
