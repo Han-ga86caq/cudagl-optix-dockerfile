@@ -10,4 +10,4 @@ This image is based on [nvidia/opengl:1.0-glvnd-devel-ubuntu14.04](https://regis
 * `glm-0.9.5.4`,
 * `OpenSceneGraph-3.2.1`,
 
-which should be downloaded and unziped in the `Downloads` folder (except for Optix-SDK, other packages can be automatically downloaded via the getdownload script.
+which should be downloaded and unziped in the `Downloads` folder (except for Optix-SDK, other packages can be automatically downloaded via the `getdownloads.sh` script. Furthermore, a script `launch.sh` is written in order to ease the usage of the image, since your code might include GUI, which requires certain environment variables to be correctly set. To costomize the script `launch.sh`, the variable `app_dir_default` and `data_dir_default` can be set to the directory of your code and data, respectively, so that they will be automatically mounted (or shared with) the launched countainer.
