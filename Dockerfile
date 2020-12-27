@@ -1,4 +1,19 @@
-FROM nvidia/opengl:1.0-glvnd-devel-ubuntu14.04
+FROM nvidia/opengl:1.0-glvnd-devel-ubuntu14.04 AS GL
+
+FROM nvidia/cuda:7.0-devel-ubuntu14.04
+
+# Copy glvnd support from first stage
+COPY --from=GL /usr/local/lib/x86_64-linux-gnu/ /usr/local/lib/x86_64-linux-gnu/
+COPY --from=GL /usr/local/lib/i386-linux-gnu/ /usr/local/lib/i386-linux-gnu/
+COPY --from=GL /usr/local/share/glvnd/ /usr/local/share/glvnd/
+COPY --from=GL /usr/local/include/ /usr/local/include/
+COPY --from=GL /usr/include/* /usr/include/
+
+ENV NVIDIA_DRIVER_CAPABILITIES=graphics,compat32,utility,compute
+ENV NVIDIA_VISIBLE_DEVICES=all
+RUN echo '/usr/local/lib/x86_64-linux-gnu' >> /etc/ld.so.conf.d/glvnd.conf \
+    && echo '/usr/local/lib/i386-linux-gnu' >> /etc/ld.so.conf.d/glvnd.conf && ldconfig
+ENV LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu:/usr/local/lib/i386-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/i386-linux-gnu:/usr/local/nvidia/lib:/usr/local/nvidia/lib64
 
 COPY Downloads /Downloads
 
@@ -9,7 +24,6 @@ ARG OPTIX="NVIDIA-OptiX-SDK-3.9.2-linux64"
 ARG OSG="OpenSceneGraph-3.2.1"
 ARG THRUST="thrust-1.8.1"
 ARG CUDA="cuda-7.0"
-ARG CUDA_INSTALL="cuda_7.0.28_linux.run"
 
 USER root
 
@@ -52,6 +66,10 @@ RUN chmod -R 777 /opt;\
     ldconfig;\
     rm ${OPTIX}.sh && cd /
 ENV OptiX_INSTALL_DIR="/opt/${OPTIX}"
+
+# Add cuda directory
+RUN echo "/usr/local/${CUDA}/lib64"  | sudo tee -a /etc/ld.so.conf.d/additional_libs.conf\
+    sudo ldconfig
 
 # install Thrust 
 RUN mv /Downloads/${THRUST} /opt/;
