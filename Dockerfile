@@ -46,13 +46,13 @@ ENV PATH="/Downloads/${CMAKE}/bin:${PATH}"
 WORKDIR /Downloads/${BOOST}
 RUN chmod -R 777 /opt; ./bootstrap.sh; \
     ./b2 install --prefix=/opt/${BOOST};\
-    cd / && rm -rf /Downloads/${BOOST}
+    cd / && rm -rf /Downloads/${BOOST}/
 ENV BOOST_ROOT="/opt/${BOOST}"
 
 # install OpenSceneGraph
 WORKDIR /Downloads/${OSG}
 RUN ./configure;  make install;\
-    cd / && rm -rf /Downloads/${OSG};
+    cd / && rm -rf /Downloads/${OSG}/;
 ENV LD_LIBRARY_PATH="/usr/local/lib64:/usr/local/lib:${LD_LIBRARY_PATH}"
 ENV OPENTHREADS_INC_DIR="/usr/local/include"
 ENV OPENTHREADS_LIB_DIR="/usr/local/lib64:/usr/local/lib"
@@ -82,6 +82,6 @@ ENV GLM_ROOT_DIR="/opt/glm"
 # install Eigen 
 WORKDIR /Downloads/${EIGEN}
 RUN mkdir build; cd build; cmake .. &&  make install;\
-    cd /; rm -rf /Downloads/${EIGEN};
+    cd /; rm -rf /Downloads/${EIGEN}/;
 
 WORKDIR /
