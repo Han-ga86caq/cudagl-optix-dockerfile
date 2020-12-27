@@ -1,5 +1,5 @@
 # cudagl-optix-dockerfile
-The Dockerfile and relevant scripts that build or run the image [ga86caq/cudagl-optix](https://hub.docker.com/repository/docker/ga86caq/cudagl-optix).
+The Dockerfile and relevant scripts that build or run the image `ga86caq/cudagl-optix`. OptiX is free to use within any application, including commercial and educational applications, whereas the download is only available for members. Therefore, in order to successfully build the image, you have to manually download NVIDIA-OptiX-SDK-3.9.2 from this [site](https://developer.nvidia.com/designworks/optix/downloads/3.9.2/linux64).
 
 This image is based on [nvidia/opengl:1.0-glvnd-devel-ubuntu14.04](https://registry.hub.docker.com/layers/nvidia/opengl/1.0-glvnd-devel-ubuntu14.04/images/sha256-b3b8f57b7e0a83d9de4f6daaf7b662a8eb229f29ee26a8bf10fd4cbca71c269b?context=explore) and [nvidia/cuda:7.0-devel-ubuntu14.04](https://hub.docker.com/layers/nvidia/cuda/7.0-devel-ubuntu14.04/images/sha256-bc2af9e231e96c354019e736af7f1d578f9989ddac1a391f850d6989a6cb9d5f?context=explore), therefore, CUDA and OpenGL (including [glvnd](https://github.com/NVIDIA/libglvnd)) is inherently supported. In addition, the following packages are installed:
 * `NVIDIA-OptiX-SDK-3.9.2`,
