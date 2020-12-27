@@ -1,4 +1,19 @@
-FROM nvidia/cuda:7.0-devel
+FROM nvidia/opengl:1.0-glvnd-devel-ubuntu14.04 AS GL
+
+FROM nvidia/cuda:7.0-devel-ubuntu14.04
+
+# Copy glvnd support from first stage
+COPY --from=GL /usr/local/lib/x86_64-linux-gnu/ /usr/local/lib/x86_64-linux-gnu/
+COPY --from=GL /usr/local/lib/i386-linux-gnu/ /usr/local/lib/i386-linux-gnu/
+COPY --from=GL /usr/local/share/glvnd/ /usr/local/share/glvnd/
+COPY --from=GL /usr/local/include/ /usr/local/include/
+COPY --from=GL /usr/include/* /usr/include/
+
+ENV NVIDIA_DRIVER_CAPABILITIES=graphics,compat32,utility,compute
+ENV NVIDIA_VISIBLE_DEVICES=all
+RUN echo '/usr/local/lib/x86_64-linux-gnu' >> /etc/ld.so.conf.d/glvnd.conf \
+    && echo '/usr/local/lib/i386-linux-gnu' >> /etc/ld.so.conf.d/glvnd.conf && ldconfig
+ENV LD_LIBRARY_PATH=/usr/local/lib/x86_64-linux-gnu:/usr/local/lib/i386-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/i386-linux-gnu:/usr/local/nvidia/lib:/usr/local/nvidia/lib64
 
 COPY Downloads /Downloads
 
@@ -34,12 +49,12 @@ WORKDIR /Downloads/${BOOST}
 RUN sudo chmod -R 777 /opt; ./bootstrap.sh; \
     ./b2 install --prefix=/opt/${BOOST};\
     echo "export BOOST_ROOT=/opt/${BOOST}"  | sudo tee -a /etc/profile;\
-    cd / && rm -rf /Downloads/${BOOST}
+    cd / && rm -rf /Downloads/${BOOST}/
 
 # install OpenSceneGraph
 WORKDIR /Downloads/${OSG}
 RUN ./configure; sudo make install;\
-    cd / && rm -rf /Downloads/${OSG}
+    cd / && rm -rf /Downloads/${OSG}/
 
 # install OptiX
 WORKDIR /Downloads/
@@ -66,52 +81,5 @@ RUN mv /Downloads/glm /opt/;\
 WORKDIR /Downloads/${EIGEN}
 RUN mkdir build; cd build; cmake .. && sudo make install;\
     cd /; rm -rf /Downloads/${EIGEN};
-
-# install glvnc dependencies (For Hardware accelerated GUI apps)
-################################################################
-RUN apt-get update; apt-get install -y --no-install-recommends \
-        git \
-        ca-certificates \
-        make \
-        automake \
-        autoconf \
-        libtool \
-        pkg-config \
-        python \
-        libxext-dev \
-        libx11-dev \
-        x11proto-gl-dev && \
-    rm -rf /var/lib/apt/lists/*
-
-ARG LIBGLVND_VERSION=v0.1.1
-
-WORKDIR /opt/libglvnd
-RUN git clone --branch="${LIBGLVND_VERSION}" https://github.com/NVIDIA/libglvnd.git . && \
-    ./autogen.sh && \
-    ./configure --prefix=/usr/local --libdir=/usr/local/lib/x86_64-linux-gnu && \
-    make -j"$(nproc)" install-strip && \
-    find /usr/local/lib/x86_64-linux-gnu -type f -name 'lib*.la' -delete
-
-RUN dpkg --add-architecture i386 && \
-    apt-get update; apt-get install -y --no-install-recommends \
-        gcc-multilib \
-        libxext-dev:i386 \
-        libx11-dev:i386 && \
-    rm -rf /var/lib/apt/lists/*
-
-# 32-bit libraries
-RUN make distclean && \
-    ./autogen.sh && \
-    ./configure --prefix=/usr/local --libdir=/usr/local/lib/i386-linux-gnu --host=i386-linux-gnu "CFLAGS=-m32" "CXXFLAGS=-m32" "LDFLAGS=-m32" && \
-    make -j"$(nproc)" install-strip && \
-    find /usr/local/lib/i386-linux-gnu -type f -name 'lib*.la' -delete
-
-RUN echo '/usr/local/lib/x86_64-linux-gnu' >> /etc/ld.so.conf.d/glvnd.conf && \
-    echo '/usr/local/lib/i386-linux-gnu' >> /etc/ld.so.conf.d/glvnd.conf && \
-    ldconfig
-
-ENV LD_LIBRARY_PATH /usr/local/lib/x86_64-linux-gnu:/usr/local/lib/i386-linux-gnu${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
-ENV LD_LIBRARY_PATH="/usr/local/lib64:/usr/local/lib:${LD_LIBRARY_PATH}"
-########################################################################
 
 WORKDIR /
