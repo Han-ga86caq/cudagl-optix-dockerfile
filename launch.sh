@@ -2,7 +2,7 @@
 
 app_dir_default="" # /path/to/your/source/code (on the host)
 data_dir_default="" # /path/to/your/data/folder (on the host)
-image_default="ga86caq/cudagl-optix:7.0-ubuntu14.04" # Image name
+image_default="ga86caq/cudagl-optix:vscode" #"ga86caq/cudagl-optix:7.0-ubuntu14.04" # Image name
 
 unset flg OPTARG OPTIND
 shared_vol=""
@@ -53,6 +53,7 @@ docker run -it \
            --privileged \
            -e DISPLAY=$DISPLAY \
            -e XAUTHORITY=$XAUTH \
+           -e LC_ALL=C \
            -v /tmp/.X11-unix:/tmp/.X11-unix:ro $shared_vol \
            -v $XAUTH:$XAUTH \
            $image /bin/bash
